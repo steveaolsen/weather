@@ -46,7 +46,7 @@ export default class App extends Component {
   }
 
   getWeather = () => {
-    axios.get(`http://api.openweathermap.org/data/2.5/weather?q=${this.state.city},${this.state.region},${this.state.country}&units=imperial&appid=bca2acfb99955947a148c60251369cf9`)
+    axios.get(`https://api.openweathermap.org/data/2.5/weather?q=${this.state.city},${this.state.region},${this.state.country}&units=imperial&appid=bca2acfb99955947a148c60251369cf9`)
     .then(res => {
       this.setState({ 
         tempF: res.data.main.temp,
@@ -55,7 +55,7 @@ export default class App extends Component {
     })
     .catch(err => console.log(err))
 
-    axios.get(`http://api.openweathermap.org/data/2.5/forecast?q=${this.state.city},${this.state.region},${this.state.country}&units=imperial&appid=bca2acfb99955947a148c60251369cf9`)
+    axios.get(`https://api.openweathermap.org/data/2.5/forecast?q=${this.state.city},${this.state.region},${this.state.country}&units=imperial&appid=bca2acfb99955947a148c60251369cf9`)
     .then(res => {
       console.log(res.data.list);//all day results by 3 hr intervals
       let allDates = [];//empty array, we'll push unique dates into this with the for loop below

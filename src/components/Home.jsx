@@ -5,7 +5,7 @@ const Home = (props) => {
         <div>
             Current Temp: {props.temp}° Fahrenheit
             <br />
-            Current Weather: <img src={`http://openweathermap.org/img/wn/${props.icon}@2x.png`} alt=""Weather Icon/>
+            Current Weather: <img src={`https://openweathermap.org/img/wn/${props.icon}@2x.png`} alt=""Weather Icon/>
         </div>
     );
 }
