@@ -1,4 +1,6 @@
-
+//got this on github, the API was returning 404s if the user didnt enter the country the correct way
+//the documentation mentions that for country codes it uses ISO 3166 country codes. i map these to the 
+//selector in the App.js and then snip the first 2 letters to save to state and submit to the API.
 let countryCodes = 
 
   [

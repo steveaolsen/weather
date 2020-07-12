@@ -3,7 +3,8 @@ import React from 'react';
 
 const Forecast = (props) => {
     
-
+    //this fucntion is called once for each day in the JSX below. we get the urls for each icon
+    //then we push elements into an array to be returned in the JSX
     const iconMapper = (iconDay) => {
         let array = [];
         for (let i=0; i<iconDay.length; i++) {

@@ -1,7 +1,3 @@
-//Hello, I don't note like this in real projects but since this is a job interview, i want you to
-//see what's going thru my head as i code. my notes in the real world are short, concise and 
-//to help guide the next developer thru the project. its also, and you can probably relate,
-//to remind myself what the hell i was doing when i go back to code a year later. 
 
 import React, { Component } from 'react';
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
@@ -42,6 +38,8 @@ export default class App extends Component {
     error: null
   }
 
+  //These handlers are for setting state on the succesful response from both fetch calls below
+  //Some basic validation, remove spaces since they are used as query params in the fetch calls
   handleCity = (event) => {
     let val = event.target.value.toString().replace(" ", "%20");
     this.setState({ city: val });
@@ -53,20 +51,15 @@ export default class App extends Component {
   }
 
   handleCountry = (event) => {
-    let val = event.target.value.substring(0, 2);
+    let val = event.target.value.substring(0, 2);//we only need to send the 2 letter country code
     this.setState({ country: val });
   }
 
   getWeather = () => {
 
-    console.log(this.state);
-
     this.setState({ showError: false });//reset the error for each subission
     let query = '';
-    //this api works if i send city,null,null, but is sketchy so i am cleaning up the query
-    //in my experience with APIs validation is always required. it usually starts of simple
-    //then grows as bugs gets tested and spotted. there is almost no perfect validation, but by
-    //using good standards we can cover most of the reasonable use case scenarios.
+    //The query could be city or city,state or city,state,country, this determines the proper format
     if (this.state.city !== null && this.state.city.length > 0) {
       query += this.state.city;
     }
@@ -76,14 +69,8 @@ export default class App extends Component {
     if (this.state.country !== null && this.state.country.length > 0) {
       query += "," + this.state.country;
     }
-    console.log("What you sent to the API: " + query);
-    //i chose netlify to host the app, i've used it before and it's easy for simple create-react-app
-    //projects. it won't work for Next and SSR, but for this project those tools would be over kill.
+    //the fetch for the current weather
     axios.get(`https://api.openweathermap.org/data/2.5/weather?q=${query}&units=imperial&appid=bca2acfb99955947a148c60251369cf9`)
-    //obviously, passing a key like this on the front end is a no no. given the risk of someone checking
-    //the weather using my key, i am willing to take that risk. in the real world I would write a blind module 
-    //in node and call it from the front end, let the back end do the fetch, then pass it to the front as a 
-    //resolved promise. just an FYI, I'm not that guy :)
     .then(res => {
       this.setState({ 
         tempF: res.data.main.temp,
@@ -95,22 +82,26 @@ export default class App extends Component {
       this.setState({ error: err, showError: true});
       console.log("Current Weather Error: " + err);
     });
-
+    //the fetch for 5 day forecast
     axios.get(`https://api.openweathermap.org/data/2.5/forecast?q=${query}&units=imperial&appid=bca2acfb99955947a148c60251369cf9`)
     .then(res => {
-      let allDates = [];//empty array, we'll push unique dates into this with the for loop below
+      //empty array, we'll push unique dates into this with the for loop below
+      let allDates = [];
+      //the reason we need this is because the requirement was for highs and lows by day, but the API gives you 8
+      //different highs and lows for every day. So we sort them based on unique dates, then do some math to 
+      //figure out the daily high and lows.
       for (let i=0; i<40; i++) {
         let individualDate = res.data.list[i].dt_txt.substring(0, 10);
         if (!allDates.includes(individualDate)) {
           allDates.push(individualDate);
         }
       }
+      //these arrays below will take all day temps and all day icons for further sorting
       let day1Temps = [], day2Temps = [], day3Temps = [], day4Temps = [], day5Temps = [];
       let day1Icons = [], day2Icons = [], day3Icons = [], day4Icons = [], day5Icons = [];
       for (let j=0; j<40; j++) {
-        //push all highs and lows for day[x] into day[x]Temps.
-        //we need to sort by day and figure out daily highs and lows, since there are 7 highs and lows per day
-        //since the api doesn't give daily highs and lows on the free version.
+        //push all highs and lows for day[x] into day[x]Temps. same with the icons.
+        //save icons to state. we will need to do math before setting the highs and lows to state
         if (res.data.list[j].dt_txt.startsWith(allDates[0])) {
           day1Temps.push(res.data.list[j].main.temp_max);
           day1Temps.push(res.data.list[j].main.temp_min);
@@ -143,14 +134,12 @@ export default class App extends Component {
         }
       }
       //now we have to sort thru these arrays and figure out the high and low for daily temps.
-      //the requirement is highs and lows per day but the API (free one) gives you several highs and lows
-      // for each day (one every 3 hours). this will get us the results we are looking for.
       let day1High = Math.max(...day1Temps); let day1Low = Math.min(...day1Temps);
       let day2High = Math.max(...day2Temps); let day2Low = Math.min(...day2Temps);
       let day3High = Math.max(...day3Temps); let day3Low = Math.min(...day3Temps);
       let day4High = Math.max(...day4Temps); let day4Low = Math.min(...day4Temps);
       let day5High = Math.max(...day5Temps); let day5Low = Math.min(...day5Temps);
-      //now lets update state
+      //now lets update state with highs and lows
       this.setState({
         dates: [...allDates],
         day1High: day1High,
