@@ -5,14 +5,12 @@ const Nav = (props) => {
     return (
         <div className="nav">
             <nav className="navba mx-auto">
-                <div className="container">
-                    <Link to="/" className="mx-5">
-                        Current Weather
-                    </Link>
-                    <Link to="/Forecast" className="mx-5">
-                        5 Day Forecast
-                    </Link>
-                </div>
+                <Link to="/" className="p-1">
+                    Current Weather
+                </Link>
+                <Link to="/Forecast" className="p-1">
+                    5 Day Forecast
+                </Link>
             </nav>
         </div>
     );
