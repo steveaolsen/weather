@@ -10,9 +10,9 @@ import Forecast from './components/Forecast';
 export default class App extends Component {
 
   state = {
-    city: "Royal Oak",
-    region: "MI",
-    country: "US",
+    city: null,
+    region: null,
+    country: null,
     tempF: null,
     iocn: null,
     dates: [],
@@ -30,7 +30,10 @@ export default class App extends Component {
     day4Icon: null,
     day5High: null,
     day5Low: null,
-    day5Icon: null
+    day5Icon: null,
+    showResults: false,
+    showError: false,
+    error: null
   }
 
   handleCity = (event) => {
@@ -46,18 +49,24 @@ export default class App extends Component {
   }
 
   getWeather = () => {
+
+    this.setState({ showError: false });
+
     axios.get(`https://api.openweathermap.org/data/2.5/weather?q=${this.state.city},${this.state.region},${this.state.country}&units=imperial&appid=bca2acfb99955947a148c60251369cf9`)
     .then(res => {
       this.setState({ 
         tempF: res.data.main.temp,
         icon: res.data.weather[0].icon
       });
+      this.setState({ showResults: true });
     })
-    .catch(err => console.log(err))
+    .catch(err => {
+      this.setState({ error: err, showError: true});
+      console.log(err);
+    });
 
     axios.get(`https://api.openweathermap.org/data/2.5/forecast?q=${this.state.city},${this.state.region},${this.state.country}&units=imperial&appid=bca2acfb99955947a148c60251369cf9`)
     .then(res => {
-      console.log(res.data.list);//all day results by 3 hr intervals
       let allDates = [];//empty array, we'll push unique dates into this with the for loop below
       for (let i=0; i<40; i++) {
         let individualDate = res.data.list[i].dt_txt.substring(0, 10);
@@ -65,33 +74,32 @@ export default class App extends Component {
           allDates.push(individualDate);
         }
       }
-      allDates.shift();//we end up with 6 days and requirement is for next 5 days, so remove the fist one
-      let day1Temps = [], day2Temps = [], day3Temps = [], day4Temps = [], day5Temps = [];
+      let day1Temps = [], day2Temps = [], day3Temps = [], day4Temps = [], day5Temps = [], day6Temps = [];
       for (let j=0; j<40; j++) {
+        //push all highs and lows for day[x] into day[x]Temps
         if (res.data.list[j].dt_txt.startsWith(allDates[0])) {
-          //push all highs and lows for day 1 into day1Temps
           day1Temps.push(res.data.list[j].main.temp_max);
           day1Temps.push(res.data.list[j].main.temp_min);
         }
         if (res.data.list[j].dt_txt.startsWith(allDates[1])) {
-          //push all highs and lows for day 2 into day2Temps
           day2Temps.push(res.data.list[j].main.temp_max);
           day2Temps.push(res.data.list[j].main.temp_min);
         }
         if (res.data.list[j].dt_txt.startsWith(allDates[2])) {
-          //push all highs and lows for day 3 into day3Temps
           day3Temps.push(res.data.list[j].main.temp_max);
           day3Temps.push(res.data.list[j].main.temp_min);
         }
         if (res.data.list[j].dt_txt.startsWith(allDates[3])) {
-          //push all highs and lows for day 4 into day4Temps
           day4Temps.push(res.data.list[j].main.temp_max);
           day4Temps.push(res.data.list[j].main.temp_min);
         }
         if (res.data.list[j].dt_txt.startsWith(allDates[4])) {
-          //push all highs and lows for day 5 into day5Temps
           day5Temps.push(res.data.list[j].main.temp_max);
           day5Temps.push(res.data.list[j].main.temp_min);
+        }
+        if (res.data.list[j].dt_txt.startsWith(allDates[5])) {
+          day6Temps.push(res.data.list[j].main.temp_max);
+          day6Temps.push(res.data.list[j].main.temp_min);
         }
       }
       //now we have to sort thru these arrays and figure out the high and low for daily temps.
@@ -116,19 +124,12 @@ export default class App extends Component {
         day5High: day5High,
         day5Low: day5Low
       });
-      //now to figure out the weather icons. there are several weather icons per day on the 5 day API, unlike the
-      // temperatures, there will be no way to compare the images or average the images. for example, a day could
-      // be rainy in the AM but sunny in the PM. should I show 2 logos? no i don't think so. I think a good
-      // comprimise for this requirement would be to add the icon that matches the high temp of the day. this 
-      // should be around noon and would be a good indicator of the weather for that day. aside from writing 
-      // an advanced algorithm to iterate theu and figure out the icons, this is the next best thing.
-
+      this.setState({ showResults: true });
     })
-    .catch(err => console.log(err));
-  }
-
-  componentDidMount = () => {
-    this.getWeather();
+    .catch(err => {
+      this.setState({ error: err, showError: true});
+      console.log(err);
+    });
   }
 
   render() {
@@ -136,30 +137,34 @@ export default class App extends Component {
       <div className="App">
         <Router>
           <Nav /> 
-            Your City: {this.state.city},{" "}{this.state.region},{" "}{this.state.country} 
-            <div className="d-flex flex-column mx-auto">
+            <div className="d-flex flex-column mx-auto my-2">
             <div>
-                <label htmlFor="city">City:</label>
+                <label htmlFor="city" className="col">City:</label>
                 <input type="text" id="city" onChange={this.handleCity}></input>
             </div>
             <div>
-                <label htmlFor="region">Region:</label>
+              <label htmlFor="region" className="col">State/Region:</label>
                 <input type="text" id="region" onChange={this.handleRegion}></input>
             </div>
             <div>
-                <label htmlFor="country">Country:</label>
+                <label htmlFor="country" className="col">Country:</label>
                 <input type="text" id="country" onChange={this.handleCountry}></input>
             </div>
             <div>
-                <button onClick={this.getWeather}>
+                <button className="my-2" onClick={this.getWeather}>
                   Check Weather
                 </button>
             </div>
         </div>
+            {this.state.showError && (
+              <div>ERROR: </div>
+            )}
+            {this.state.showResults && (
             <Switch>
               <Route path="/" exact component={() => <Home temp={this.state.tempF} icon={this.state.icon} />} />
-              <Route path="/Forecast" exact component={() => <Forecast forecastData={this.state}/>} />
+              <Route path="/Forecast" exact component={() => <Forecast forecastData={this.state} />} />
             </Switch>
+            )}
         </Router>
       </div>
     );

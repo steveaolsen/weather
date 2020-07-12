@@ -4,7 +4,7 @@ import { Link, withRouter } from 'react-router-dom';
 const Nav = (props) => {
     return (
         <div className="nav">
-            <nav className="navbar">
+            <nav className="navba mx-auto">
                 <div className="container">
                     <Link to="/" className="mx-5">
                         Current Weather
