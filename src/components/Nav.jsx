@@ -8,6 +8,7 @@ const Nav = (props) => {
                 <Link to="/" className="p-1">
                     Current Weather
                 </Link>
+                <span>|</span>
                 <Link to="/Forecast" className="p-1">
                     5 Day Forecast
                 </Link>
