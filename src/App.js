@@ -104,8 +104,8 @@ export default class App extends Component {
           allDates.push(individualDate);
         }
       }
-      let day1Temps = [], day2Temps = [], day3Temps = [], day4Temps = [], day5Temps = [], day6Temps = [];
-      let day1Icons = [], day2Icons = [], day3Icons = [], day4Icons = [], day5Icons = [], day6Icons = [];
+      let day1Temps = [], day2Temps = [], day3Temps = [], day4Temps = [], day5Temps = [];
+      let day1Icons = [], day2Icons = [], day3Icons = [], day4Icons = [], day5Icons = [];
       for (let j=0; j<40; j++) {
         //push all highs and lows for day[x] into day[x]Temps.
         //we need to sort by day and figure out daily highs and lows, since there are 7 highs and lows per day
