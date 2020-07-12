@@ -11,13 +11,14 @@ import './App.css';
 import Nav from './components/Nav';
 import Home from './components/Home';
 import Forecast from './components/Forecast';
+import countryCodes from './data/countryCodes';
 
 export default class App extends Component {
 
   state = {
     city: null,
     region: null,
-    country: null,
+    country: "us",
     tempF: null,
     iocn: null,
     dates: [],
@@ -52,7 +53,7 @@ export default class App extends Component {
   }
 
   handleCountry = (event) => {
-    let val = event.target.value.toString().replace(" ", "%20");
+    let val = event.target.value.substring(0, 2);
     this.setState({ country: val });
   }
 
@@ -141,7 +142,6 @@ export default class App extends Component {
           this.setState({ day5Icons: day5Icons });
         }
       }
-      console.log("day1Icons in App.js: " + day1Icons);
       //now we have to sort thru these arrays and figure out the high and low for daily temps.
       //the requirement is highs and lows per day but the API (free one) gives you several highs and lows
       // for each day (one every 3 hours). this will get us the results we are looking for.
@@ -179,16 +179,21 @@ export default class App extends Component {
           <Nav /> 
             <div className="d-flex flex-column mx-auto my-2">
               <div>
-                  <label htmlFor="city" className="col">City:</label>
+                  <label htmlFor="city" className="col">City: *Required*</label>
                   <input type="text" id="city" onChange={this.handleCity}></input>
               </div>
               <div>
-                <label htmlFor="region" className="col">State/Region:</label>
+                <label htmlFor="region" className="col">State/Region: *Optional*</label>
                   <input type="text" id="region" onChange={this.handleRegion}></input>
               </div>
               <div>
-                  <label htmlFor="country" className="col">Country:</label>
-                  <input type="text" id="country" onChange={this.handleCountry}></input>
+                  <label htmlFor="country" className="col">Country: *Required*</label>
+                  <select onChange={this.handleCountry}>
+                    <option value="US - United States of America" selected>US - United States of America</option> 
+                    {countryCodes.map((label, index) => (
+                      <option key={index}>{label}</option>
+                    ))}
+                  </select>
               </div>
               <div>
                   <button className="my-2" onClick={this.getWeather}>
@@ -197,9 +202,10 @@ export default class App extends Component {
               </div>
             </div>
             {this.state.showError && (
-              <div>ERROR: </div>
+              <div>ERROR: There was an error, Please make sure you've entered a real city and selected your country
+              </div>
             )}
-            {this.state.showResults && !this.state.showError &&(
+            {this.state.showResults && !this.state.showError && (
             <Switch>
               <Route path="/" exact component={() => <Home temp={this.state.tempF} icon={this.state.icon} />} />
               <Route path="/Forecast" exact component={() => <Forecast forecastData={this.state} />} />
